@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Hackathon</title>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader">
+        <div class="lds-ring">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Login Or Signup Form -->
+    <div class="inputForm">
+        <div class="signupForm formDiv" style="display: none;">
+            <h2>Signup</h2>
+            <input type="text" placeholder="your Name" class="userName">
+            <input type="email" placeholder="Email adress" class="email">
+            <input type="password" placeholder="password" class="password">
+            <button class="signupBtn">Signup</button>
+            <span class="link" onclick="showLoginForm()">Already have an account</span>
+        </div>
+        <div class="loginForm formDiv">
+            <h2>Login</h2>
+            <input type="email" placeholder="Email address" class="loginEmail">
+            <input type="password" placeholder="password" class="loginPassword">
+            <button class="loginBtn">Login</button>
+            <span class="link" onclick="showSignupForm()">Don't have an account</span>
+        </div>
+    </div>
+
+    <!-- Main Page -->
+    <div class="mnPage">
+        <h1 class="wlcm">Welcome</h1> <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+    </script>
+
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script defer src="./script.js"></script>
+</body>
+
+</html>
