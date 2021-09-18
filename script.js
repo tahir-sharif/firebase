@@ -54,6 +54,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const firestore = firebase.firestore();
 console.log(auth)
 
 // Create New account
@@ -82,18 +83,33 @@ loginBtn.onclick = () => { login() }
 function logout() {
     auth.signOut();
 }
-
+var u;
 auth.onAuthStateChanged((user) => {
     loader.style.display = 'none'
+    console.log( user )
     if (user) {
 
-        document.title = 'Welcome'
+        document.title = "Tahir's Messenger"
 
         inputForm.style.display = 'none'
-        mnPage.style.display = 'block'
+        mnPage.style.display = 'flex'
 
-        console.log('you are logged in !', user.email)
-        document.querySelector('.wlcm').innerHTML += ' ' + user.email
+        console.log('you are logged in', user.email , '!')
+        // document.querySelector('.wlcm').innerHTML += ' ' + user.email
+        u = user;
+        
+        firestore.collection('users').doc(user.uid).set({
+            email: user.email,
+            lastLoggedInAt: new Date()
+        })
+            .then(() => {
+                console.log("Document written");
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+            });
+
+            setMessages()
 
     } else {
 
@@ -102,7 +118,94 @@ auth.onAuthStateChanged((user) => {
         inputForm.style.display = 'flex'
         mnPage.style.display = 'none'
 
-        console.log('no account have logged in !')
+        console.log('no account is log in !')
 
     }
-})
+});
+
+function setMessages(){
+    const messageRef = firestore.collection('messages')
+    messageRef.onSnapshot((snap)=>{
+        var f = snap.docChanges()
+        f = f.reverse();
+        f.forEach((change)=>{
+            if(change.type == 'added'){
+                createMsgElement(change.doc.data())
+            };
+        })
+    })
+}
+
+
+function sendMessage(){
+    const userEmail = auth.currentUser.email;
+    const message = msgTxt.value;
+
+    firestore.collection('messages').add({
+        userEmail , message , time : Date.now()
+    }).then((docRef) => {
+        console.log("Document written with ID: ", docRef.id);
+    })
+    .catch((error) => {
+        console.error("Error adding document: ", error);
+    });
+}
+
+// Create Div For Message
+var messageParent = document.querySelector(".messages")
+var msgTxt = document.querySelector('.msgTxt');
+var sndBtn = document.querySelector('.sndBtn');
+
+function createMsgElement(data){
+        const currentUser = auth.currentUser.email;
+
+        var div = document.createElement('div');
+        span = document.createElement('span')
+        msgDiv = document.createElement('div');
+
+        div.classList.add('msgBody')
+        msgDiv.classList.add('msg')
+        span.classList.add('msgName')
+        msgDiv.innerHTML = data.message;
+        
+        msgDiv.appendChild(span)
+        div.appendChild(msgDiv)
+        messageParent.appendChild(div)
+
+        if(data.userEmail == currentUser){
+            div.classList.add('sender');
+            span.innerHTML = ''
+        }else{
+            div.classList.add('receiver');
+            span.innerHTML = data.userEmail
+        }
+
+        messageParent.scroll(0 , messageParent.offsetHeight);
+        msgTxt.value = '';
+}
+sndBtn.onclick = ()=>{
+    if(msgTxt.value != ''){
+        sendMessage();
+    }
+}
+
+
+// Check if not Empty then valid
+var e
+msgTxt.addEventListener('keyup' , (event)=>{
+    if(event.keyCode == 13){
+        sendMessage()
+    }
+    btnOpacity();
+} );
+function btnOpacity() {
+    if(msgTxt.value == ''){
+        sndBtn.style.opacity = '0.55'
+        sndBtn.style.cursor = 'default'
+    }else{
+        sndBtn.style.opacity = '1'
+        sndBtn.style.cursor = 'pointer'
+    }
+}
+btnOpacity();
+messageParent.scroll(0 , messageParent.offsetHeight);
